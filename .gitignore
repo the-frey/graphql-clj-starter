@@ -15,3 +15,4 @@ coverage
 npm-debug.log
 target/
 .nrepl-port
+.lein-repl-history

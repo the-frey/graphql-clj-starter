@@ -28,6 +28,20 @@ query {
 }
 ```
 
+To get all characters, try searching without an ID:
+
+```
+query {
+  characters {
+    name
+    friends {
+      name
+    }
+  }
+}
+
+```
+
 #### Sample mutations
 
 ```

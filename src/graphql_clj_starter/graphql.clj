@@ -5,10 +5,16 @@
             [graphql-clj.schema-validator :as sv]
             [clojure.core.match :as match]))
 
+(def schema
+  "
+
+
+")
+
 (def starter-schema "# enum for episode
   enum Episode { NEWHOPE, EMPIRE, JEDI }
 
-# interface for Chapter 
+# interface for Character
 interface Character {
   id: String!
   name: String
@@ -43,6 +49,7 @@ type Query {
   hello(world: WorldInput): String
   objectList: [Object!]!
   nestedInput(nested: NestedInput): String
+  characters: [Character]
 }
 
 type Object {
@@ -127,6 +134,8 @@ schema {
 (def droidData (atom {"2000" threepio
                       "2001" artoo}))
 
+(def all-characters [luke vader han leia tarkin threepio artoo])
+
 (defn get-human [id]
   (get @humanData (str id))) ; BUG: String should be parsed as string instead of int
 
@@ -136,6 +145,15 @@ schema {
 (defn get-character [id]
   (or (get-human id) ; BUG: String should be parsed as string instead of int
       (get-droid id)))
+
+(comment (defn get-characters []
+   (let [humans (into {} @humanData)
+         droids (into {} @droidData)]
+     (merge humans
+            droids))))
+
+(defn get-characters []
+  all-characters)
 
 (defn get-friends [character]
   (map get-character (:friends character)))
@@ -158,6 +176,8 @@ schema {
 (defn starter-resolver-fn [type-name field-name]
   (match/match
    [type-name field-name]
+   ["Query" "characters"] (fn [context parent args]
+                            (get-characters))
    ["Query" "hero"] (fn [context parent args]
                       (get-hero (:episode args)))
    ["Query" "human"] (fn [context parent args]
