@@ -46,8 +46,10 @@ type Query {
   # return hero from a particular episode
   hero(episode: Episode): Character  
   human(id: String): [Human]
-  humans: [Human]
+  # humans: [Human]
+  humans(ids: [String!]): [Human!]
   droid(id: String): [Droid]
+  droids(ids: [String!]): [Droid!]
   hello(world: WorldInput): String
   objectList: [Object!]!
   nestedInput(nested: NestedInput): String
@@ -198,7 +200,8 @@ schema {
                                      (get-human nil))]
                          human))
    ["Query" "humans"] (fn [context parent args]
-                        (get-human nil))
+                        (let [ids-list (get args "ids")]
+                          (map #(get-human (str %)) ids-list)))
    ["Query" "droid"] (fn [context parent args]
                        (let [id (str (get args "id"))
                              droid (if (and id
@@ -206,6 +209,9 @@ schema {
                                      [(get-droid id)]
                                      (get-droid nil))]
                          droid))
+   ["Query" "droids"] (fn [context parent args]
+                        (let [ids-list (get args "ids")]
+                          (map #(get-droid (str %)) ids-list)))
    ["Query" "objectList"] (fn [context parent args]
                             (repeat 3 {:id (java.util.UUID/randomUUID)}))
    ;; Hacky!!! Should use resolver for interface

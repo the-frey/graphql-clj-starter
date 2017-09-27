@@ -56,6 +56,38 @@ query {
 }
 ```
 
+If you want to select more than one ID, then pass an array of IDs to the `humans` query type.
+
+```
+query Q($list: [String!]){
+  humans(ids: $list){
+    name
+  }
+}
+
+```
+
+Try these example variables:
+
+```
+{
+  "list": ["1001", "1002", "1003"]
+}
+```
+
+The same is possible with the `droids` type.
+
+```
+query Q($list: [String!]){
+  droids(ids: $list){
+    name
+    primaryFunction
+  }
+}
+```
+
+Valid IDs for droids to test variables are `"2000"` and `"2001"`.
+
 #### Sample mutations
 
 ```

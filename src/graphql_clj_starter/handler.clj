@@ -18,10 +18,10 @@
   (POST "/graphql" [schema query variables operationName :as request]
         (prn "operationName:" operationName)
         (println "POST query: " query)
-        ;; (println "Post variables: " (json/parse-string variables))
+        (println "Post variables: " variables) ;; HACK to allow us to pass a list
         (response/response
          (try
-           (let [result (graphql/execute query (json/parse-string variables) operationName)]
+           (let [result (graphql/execute query variables operationName)]
              (prn "result:" result)
              result)
            (catch Throwable e
