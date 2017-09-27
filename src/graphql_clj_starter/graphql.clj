@@ -3,7 +3,8 @@
             [graphql-clj.executor :as executor]
             [graphql-clj.query-validator :as qv]
             [graphql-clj.schema-validator :as sv]
-            [clojure.core.match :as match]))
+            [clojure.core.match :as match]
+            [clojure.tools.logging :as log]))
 
 (def schema
   "
@@ -44,8 +45,9 @@ type Droid implements Character {
 type Query {
   # return hero from a particular episode
   hero(episode: Episode): Character  
-  human(id: String!): Human
-  droid(id: String!): Droid
+  human(id: String): [Human]
+  humans: [Human]
+  droid(id: String): [Droid]
   hello(world: WorldInput): String
   objectList: [Object!]!
   nestedInput(nested: NestedInput): String
@@ -136,11 +138,19 @@ schema {
 
 (def all-characters [luke vader han leia tarkin threepio artoo])
 
+(def all-humans [luke vader han leia tarkin])
+
+(def all-droids [threepio artoo])
+
 (defn get-human [id]
-  (get @humanData (str id))) ; BUG: String should be parsed as string instead of int
+  (if (not (nil? id))
+    (get @humanData (str id))
+    all-humans)) ; BUG: String should be parsed as string instead of int
 
 (defn get-droid [id]
-  (get @droidData (str id))) ; BUG: String should be parsed as string instead of int
+  (if (not (nil? id))
+    (get @droidData (str id))
+    all-droids)) ; BUG: String should be parsed as string instead of int
 
 (defn get-character [id]
   (or (get-human id) ; BUG: String should be parsed as string instead of int
@@ -181,9 +191,21 @@ schema {
    ["Query" "hero"] (fn [context parent args]
                       (get-hero (:episode args)))
    ["Query" "human"] (fn [context parent args]
-                       (get-human (str (get args "id"))))
+                       (let [id (str (get args "id"))
+                             human (if (and id
+                                            (not (clojure.string/blank? id)))
+                                     [(get-human id)]
+                                     (get-human nil))]
+                         human))
+   ["Query" "humans"] (fn [context parent args]
+                        (get-human nil))
    ["Query" "droid"] (fn [context parent args]
-                       (get-droid (str (get args "id"))))
+                       (let [id (str (get args "id"))
+                             droid (if (and id
+                                            (not (clojure.string/blank? id)))
+                                     [(get-droid id)]
+                                     (get-droid nil))]
+                         droid))
    ["Query" "objectList"] (fn [context parent args]
                             (repeat 3 {:id (java.util.UUID/randomUUID)}))
    ;; Hacky!!! Should use resolver for interface

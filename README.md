@@ -42,6 +42,20 @@ query {
 
 ```
 
+Specifically, Humans and Droids are both arrays as a return type, although they support passing an individual ID:
+
+```
+query {
+  human(id: "1001") {
+    name
+  }
+  
+  droid(id: "2000") {
+    name
+  }
+}
+```
+
 #### Sample mutations
 
 ```
