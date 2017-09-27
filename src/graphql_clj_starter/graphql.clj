@@ -6,11 +6,6 @@
             [clojure.core.match :as match]
             [clojure.tools.logging :as log]))
 
-(def schema
-  "
-
-
-")
 
 (def starter-schema "# enum for episode
   enum Episode { NEWHOPE, EMPIRE, JEDI }
